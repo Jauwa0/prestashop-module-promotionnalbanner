@@ -1,0 +1,9 @@
+{
+  "name": "aurelien_david/promotionalbanner",
+  "type": "prestashop-module",
+  "autoload": {
+    "psr-4": {
+      "PromotionalBanner\\": "src/"
+    }
+  }
+}

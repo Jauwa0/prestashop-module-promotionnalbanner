@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="ModulesPromotionalbannerAdmin.xlf" source-language="fr-FR" target-language="fr-FR" datatype="plaintext">
+    <body>
+      <trans-unit id="69ee1afc9b3d02e53d9f733c1993b568">
+        <source>Background image</source>
+        <target>Image d'arrière-plan</target>
+      </trans-unit>
+      <trans-unit id="7caade50e78d346a7f76aad3e0ae5d81">
+        <source>Background image of the banner.</source>
+        <target>Image d'arrière-plan de la bannière.</target>
+      </trans-unit>
+      <trans-unit id="e44b2d807ef84fb61b415198acc84ffe">
+        <source>Banner updated.</source>
+        <target>Bannière mise à jour.</target>
+      </trans-unit>
+      <trans-unit id="f2ffd66432f5a9eade78ef127789c683">
+        <source>Choose a background image for your banner. Allowed formats are: %imgBgExtAllowedLabel%. (max. 500 ko, ideal ratio 3:1).</source>
+        <target>Choisissez une image d'arrière-plan pour votre bannière. Les formats autorisés sont : %imgBgExtAllowedLabel% (500 Ko max., ratio idéal : 3:1).</target>
+      </trans-unit>
+      <trans-unit id="92fbf0e5d97b8afd7e73126b52bdc4bb">
+        <source>Choose a file</source>
+        <target>Choisir un fichier</target>
+      </trans-unit>
+      <trans-unit id="a48ed821e8b21036b37ce4053466778c">
+        <source>DB error while cleaning configuration.</source>
+        <target>Erreur dans la base de données lors du nettoyage de la configuration.</target>
+      </trans-unit>
+      <trans-unit id="ce422bd7ae633d53f0266a3a12aa750c">
+        <source>DB error while initialising default configuration.</source>
+        <target>Erreur dans la base de données lors de l'initialisation de la configuration par défaut.</target>
+      </trans-unit>
+      <trans-unit id="89959a901fec390d2ef4beadb56e981a">
+        <source>Define the text/paragraph below your title (max 150 char).</source>
+        <target>Définissez le texte/paragraphe sous votre titre (max 150 caractères).</target>
+      </trans-unit>
+      <trans-unit id="abf7b3a49c244fe8c4b9655499310517">
+        <source>Displays a promotional banner on the website's homepage. Configuration: Title, test, image, and display duration.</source>
+        <target>Affiche une bannière promotionnelle sur la page d'accueil du site web. Configuration : titre, test, image et durée d'affichage.</target>
+      </trans-unit>
+      <trans-unit id="ae732849889ede2daa7afa47d3a673da">
+        <source>Image saving failed.</source>
+        <target>L'enregistrement de l'image a échoué.</target>
+      </trans-unit>
+      <trans-unit id="ecc4634b8d04ad7bddba2a3f196ef63a">
+        <source>It seems that a problem in your store is preventing the module from being installed.</source>
+        <target>Un problème dans votre boutique empêche l'installation du module.</target>
+      </trans-unit>
+      <trans-unit id="eeef02555ac9548b151de20137ff9979">
+        <source>It seems that an issue in the Hooks registry is preventing the module from working properly.</source>
+        <target>Un problème dans le registre Hooks empêche le module de fonctionner correctement.</target>
+      </trans-unit>
+      <trans-unit id="4501477b13186da951d4c7696d4d5fb9">
+        <source>It seems that there is an issue in your store that is preventing the module from being uninstalled.</source>
+        <target>Il semble qu'il y ait un problème dans votre boutique qui empêche la désinstallation du module.</target>
+      </trans-unit>
+      <trans-unit id="6b0f91a8d5aa4591fbc2eb745227ff22">
+        <source>Promotional Banner</source>
+        <target>Bannière promotionnelle</target>
+      </trans-unit>
+      <trans-unit id="dea42c9710de830365bbd90faa255a61">
+        <source>Promotional Banner Settings</source>
+        <target>Paramètres de bannière promotionnelle</target>
+      </trans-unit>
+      <trans-unit id="c9cc8cce247e49bae79f15173ce97354">
+        <source>Save</source>
+        <target>Sauvegarder</target>
+      </trans-unit>
+      <trans-unit id="84b7cdf0bbb8a7e201120779bc8bc753">
+        <source>Set the title of your promotional banner (max 150 char).</source>
+        <target>Définissez le titre de votre bannière promotionnelle (max 150 caractères).</target>
+      </trans-unit>
+      <trans-unit id="b78a3223503896721cca1303f776159b">
+        <source>Title</source>
+        <target>Titre</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
