@@ -136,6 +136,33 @@
                     </div>
                 </div>
 
+            {elseif $field.type === 'url'}
+
+                <div class="form-group">
+                    <label for="{$field.name}" class="control-label col-lg-3">
+                        {$field.label}
+                        {if isset($field.required) && $field.required }<sup class="required">*</sup>{/if}
+                    </label>
+                    <div class="col-lg-9">
+
+                        <input type="url"
+                               name="{$field.name}"
+                               class="form-control"
+                               value="{$field.value|escape:'html':'UTF-8'}"
+                               placeholder="https://example.com"
+                               pattern="https?://.*"
+                               {if isset($field.required) && $field.required } required="required" {/if}
+                        >
+
+                        {if $field.desc != ""}
+                            <p class="help-block">
+                                {$field.desc}
+                            </p>
+                        {/if}
+
+                    </div>
+                </div>
+
             {/if}
 
         {/foreach}

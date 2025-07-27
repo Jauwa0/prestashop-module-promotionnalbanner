@@ -185,4 +185,38 @@ final class BannerConfigHelper
             : null;
     }
 
+    /**
+     * Sanitize and validate a URL. Returns the cleaned URL or '' if empty, null if invalid.
+     * Only http/https allowed.
+     */
+    public static function sanitizeUrl(string $raw): string
+    {
+        $raw = trim($raw);
+        if ($raw === '') {
+            return '';
+        }
+
+        // Normalize: strip non-printable ASCII chars (control chars, etc.)
+        $raw = filter_var($raw, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
+
+        // If user typed "example.com", we prepend https:// by default.
+        if (!preg_match('#^https?://#i', $raw)) {
+            $raw = 'https://' . $raw;
+        }
+
+        // Validate the whole string as a URL
+        if (!filter_var($raw, FILTER_VALIDATE_URL)) {
+            return '';
+        }
+
+        // Parse and enforce an http/https scheme only
+        $parts = parse_url($raw);
+        if (empty($parts['scheme']) || !in_array(strtolower($parts['scheme']), ['http', 'https'], true)) {
+            return '';
+        }
+
+        return $raw;
+    }
+
+
 }

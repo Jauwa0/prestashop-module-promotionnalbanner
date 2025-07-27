@@ -110,6 +110,7 @@ class Promotionalbanner extends Module
             Configuration::updateValue(self::PROMO_BANNER_IMG, '');
             Configuration::updateValue(self::PROMO_BANNER_START_AT, '');
             Configuration::updateValue(self::PROMO_BANNER_END_AT, '');
+            Configuration::updateValue(self::PROMO_BANNER_LINK, '');
 
         }
         catch (\PrestaShopException $e) {
@@ -141,6 +142,7 @@ class Promotionalbanner extends Module
             Configuration::deleteByName(self::PROMO_BANNER_IMG);
             Configuration::deleteByName(self::PROMO_BANNER_START_AT);
             Configuration::deleteByName(self::PROMO_BANNER_END_AT);
+            Configuration::deleteByName(self::PROMO_BANNER_LINK);
 
         }
         catch (\PrestaShopException $e) {
@@ -268,8 +270,29 @@ class Promotionalbanner extends Module
 
             //</editor-fold>
 
+
+            // - Link url -
+            //<editor-fold desc="Link url sanitize + feed process">
+            $linkRaw = Tools::getValue(self::PROMO_BANNER_LINK);
+            $link    = BannerConfigHelper::sanitizeUrl($linkRaw);
+
+            if ($linkRaw && $link === '') {
+                $html .= $this->displayError('Invalid URL.', [], 'Modules.Promotionalbanner.Admin');
+            }
+
+            if ($link !== '') {
+                Configuration::updateValue(self::PROMO_BANNER_LINK, $link);
+            }
+
+            //</editor-fold>
+
+
             // User message return
             $html .= $this->displayConfirmation($this->trans('Banner updated.', [], 'Modules.Promotionalbanner.Admin'));
+
+            // Deletes cached versions of the passed template.
+            $this->_clearCache('module:'.$this->name.'/views/templates/hook/banner.tpl');
+
         }
 
 
@@ -331,6 +354,14 @@ class Promotionalbanner extends Module
                         'button_label'          => $this->trans('Choose a file', [], 'Modules.Promotionalbanner.Admin'),
                         'image_thumbnail_path'  => $imageThumbnailPath,
                         'image_thumbnail_alt'   => $this->trans('Background image of the banner.', [], 'Modules.Promotionalbanner.Admin'),
+                    ],
+                    // - Link url -
+                    [
+                        'type'      => 'url',
+                        'label'     => $this->trans('Banner link (url)', [], 'Modules.Promotionalbanner.Admin'),
+                        'name'      => self::PROMO_BANNER_LINK,
+                        'desc'      => $this->trans('Enter the link associated with your banner. When a visitor clicks on the banner, the link opens in the same window. (optional)', [], 'Modules.Promotionalbanner.Admin'),
+                        'value'     => Configuration::get(self::PROMO_BANNER_LINK) ?? '',
                     ],
                     // - Title -
                     [
@@ -426,6 +457,7 @@ class Promotionalbanner extends Module
                 'pb_img'   => Configuration::get(self::PROMO_BANNER_IMG)
                     ? $this->_path.'img/'.Configuration::get(self::PROMO_BANNER_IMG)
                     : '',
+                'pb_link_url' => Configuration::get(self::PROMO_BANNER_LINK),
             ]);
         }
 
