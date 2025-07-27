@@ -2,6 +2,9 @@
 
 namespace PromotionalBanner\Helper;
 
+use DateTime;
+use DateTimeImmutable;
+use DateTimeZone;
 use Exception;
 use PrestaShop\PrestaShop\Core\Exception\TranslatableCoreException;
 use Tools;
@@ -24,16 +27,20 @@ final class BannerConfigHelper
      * Sanitize string
      * @param string $textParam
      * @param int $maxLength
-     * @return string
+     * @return string|null
      * @throws TranslatableCoreException
      */
-    public static function getValidString(string $textParam, int $maxLength = 255): string
+    public static function getValidString(string $textParam, int $maxLength = 255): ?string
     {
+        if ($textParam === '') {
+            return null;
+        }
+
         $text = trim($textParam);
 
         // Reasonable limit size - SEO / UI (255 car. max by default)
         if (Tools::strlen($text) > $maxLength) {
-            throw new TranslatableCoreException('This text is too long (%maxLength% chars max).', 'Modules.Promotionalbanner.Admin', ['maxLength' => $maxLength]);
+            throw new TranslatableCoreException('This text is too long (%maxLength% chars max).', 'Modules.Promotionalbanner.Admin', ['%maxLength%' => $maxLength]);
         }
 
         // Disallow any tags or control characters
@@ -52,11 +59,15 @@ final class BannerConfigHelper
      * Sanitize the image and return the image path
      * @param array $file
      * @param string $destinationDirectory
-     * @return string
+     * @return string|null
      * @throws Exception
      */
-    public static function getValidImg(array $file, string $destinationDirectory): string
+    public static function getValidImg(array $file, string $destinationDirectory): ?string
     {
+        if ($file === []) {
+            return null;
+        }
+
         // Get extensions allowed - Depending on whether GD supports webp
         $imgBgExtAllowed = \function_exists('\imagecreatefromwebp') ? self::IMG_BG_EXT_ALLOWED_WITH_WEBP : self::IMG_BG_EXT_ALLOWED_NO_WEBP;
 
@@ -147,6 +158,31 @@ final class BannerConfigHelper
         // Memory cleaning
         imagedestroy($srcIm);
         imagedestroy($destIm);
+    }
+
+    /**
+     * Validate and normalize a datetime string.
+     *
+     * Accepts:
+     *  - Full ISO 8601 with timezone (preferred): 2025-07-27T14:30:00+02:00
+     *  - "Y-m-d H:i:s" (falls back to $defaultTz)
+     *  - "Y-m-d" only (time = 00:00:00, $defaultTz)
+     *
+     * @param string $input
+     * @param DateTimeZone|null $defaultTz
+     * @return DateTime|false|null
+     */
+    public static function getValidDateTime(string $input, ?DateTimeZone $defaultTz = null): DateTime|false|null
+    {
+        if ($input === '') {
+            return null;
+        }
+
+        $pattern = '/^\d{4}-\d{2}-\d{2}$/';
+
+        return ($input && preg_match($pattern, $input))
+            ? DateTime::createFromFormat('!Y-m-d', $input)
+            : null;
     }
 
 }

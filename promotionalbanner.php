@@ -20,6 +20,8 @@ class Promotionalbanner extends Module
     private const PROMO_BANNER_TITLE = 'PROMO_BANNER_TITLE';
     private const PROMO_BANNER_TEXT = 'PROMO_BANNER_TEXT';
     private const PROMO_BANNER_IMG = 'PROMO_BANNER_IMG';
+    private const PROMO_BANNER_START_AT = 'PROMO_BANNER_START_AT'; // Banner display start date
+    private const PROMO_BANNER_END_AT = 'PROMO_BANNER_END_AT'; // Banner display end date
     private const PROMO_BANNER_LINK = 'PROMO_BANNER_LINK';
 
     //</editor-fold>
@@ -106,6 +108,8 @@ class Promotionalbanner extends Module
             Configuration::updateValue(self::PROMO_BANNER_TITLE, '');
             Configuration::updateValue(self::PROMO_BANNER_TEXT, '');
             Configuration::updateValue(self::PROMO_BANNER_IMG, '');
+            Configuration::updateValue(self::PROMO_BANNER_START_AT, '');
+            Configuration::updateValue(self::PROMO_BANNER_END_AT, '');
 
         }
         catch (\PrestaShopException $e) {
@@ -135,6 +139,8 @@ class Promotionalbanner extends Module
             Configuration::deleteByName(self::PROMO_BANNER_TITLE);
             Configuration::deleteByName(self::PROMO_BANNER_TEXT);
             Configuration::deleteByName(self::PROMO_BANNER_IMG);
+            Configuration::deleteByName(self::PROMO_BANNER_START_AT);
+            Configuration::deleteByName(self::PROMO_BANNER_END_AT);
 
         }
         catch (\PrestaShopException $e) {
@@ -193,6 +199,7 @@ class Promotionalbanner extends Module
 
 
             // - Image -
+            //<editor-fold desc="Image sanitize + feed process">
             if (isset($_FILES[self::PROMO_BANNER_IMG]) && !empty($_FILES[self::PROMO_BANNER_IMG]['tmp_name'])) {
 
                 try{
@@ -222,6 +229,44 @@ class Promotionalbanner extends Module
                 }
 
             }
+            //</editor-fold>
+
+
+            // - Dates (start - end) -
+            //<editor-fold desc="Dates sanitize + feed process">
+
+            $startAt = null;
+            $endAt = null;
+
+            // - Start date -
+            try{
+                $startAt = BannerConfigHelper::getValidDateTime(Tools::getValue(self::PROMO_BANNER_START_AT));
+            }
+            catch (\Exception $e) {
+                $html .= $this->displayError($this->trans('Invalid start date.', [], 'Modules.Promotionalbanner.Admin'));
+            }
+
+            // - End date -
+            try{
+                $endAt = BannerConfigHelper::getValidDateTime(Tools::getValue(self::PROMO_BANNER_END_AT));
+            }
+            catch (\Exception $e) {
+                $html .= $this->displayError($this->trans('Invalid end date.', [], 'Modules.Promotionalbanner.Admin'));
+            }
+
+            $hasErrorDate = false;
+
+            if ($startAt && $endAt && $startAt > $endAt) {
+                $hasErrorDate = true;
+                $html .= $this->displayError($this->trans('Start date must be before end date.', [], 'Modules.Promotionalbanner.Admin'));
+            }
+
+            if ($startAt && $endAt && $hasErrorDate === false) {
+                Configuration::updateValue(self::PROMO_BANNER_START_AT, $startAt->format('Y-m-d H:i:s'));
+                Configuration::updateValue(self::PROMO_BANNER_END_AT, $endAt->format('Y-m-d H:i:s'));
+            }
+
+            //</editor-fold>
 
             // User message return
             $html .= $this->displayConfirmation($this->trans('Banner updated.', [], 'Modules.Promotionalbanner.Admin'));
@@ -250,6 +295,7 @@ class Promotionalbanner extends Module
 
     /**
      * @return array
+     * @throws Exception
      */
     protected function renderForm(): array
     {
@@ -298,10 +344,26 @@ class Promotionalbanner extends Module
                     // - Texte -
                     [
                         'type'      => 'textarea',
-                        'label'     => $this->trans('Text'),
+                        'label'     => $this->trans('Text', [], 'Modules.Promotionalbanner.Admin'),
                         'name'      => self::PROMO_BANNER_TEXT,
                         'desc'      => $this->trans('Define the text/paragraph below your title (max 150 char).', [], 'Modules.Promotionalbanner.Admin'),
                         'value'     => Configuration::get(self::PROMO_BANNER_TEXT) ?? '',
+                    ],
+                    // - Date start -
+                    [
+                        'type'      => 'date',
+                        'label'     => $this->trans('Date start', [], 'Modules.Promotionalbanner.Admin'),
+                        'name'      => self::PROMO_BANNER_START_AT,
+                        'desc'      => $this->trans('Choose a date from which the banner should be displayed. From this date, the banner will be visible. (optional)', [], 'Modules.Promotionalbanner.Admin'),
+                        'value'     => Configuration::get(self::PROMO_BANNER_START_AT) ? (new \DateTimeImmutable(Configuration::get(self::PROMO_BANNER_START_AT)))->format('Y-m-d') : '',
+                    ],
+                    // - Date end -
+                    [
+                        'type'      => 'date',
+                        'label'     => $this->trans('Date end', [], 'Modules.Promotionalbanner.Admin'),
+                        'name'      => self::PROMO_BANNER_END_AT,
+                        'desc'      => $this->trans('Choose a date from which the banner should no longer be displayed. From this date, the banner will no longer be visible. (optional)', [], 'Modules.Promotionalbanner.Admin'),
+                        'value'     => Configuration::get(self::PROMO_BANNER_END_AT) ? (new \DateTimeImmutable(Configuration::get(self::PROMO_BANNER_END_AT)))->format('Y-m-d') : '',
                     ],
                 ],
                 'submit' => [
@@ -346,20 +408,29 @@ class Promotionalbanner extends Module
     /**
      * @param array $params
      * @return false|string
+     * @throws Exception
      */
     public function hookDisplayHome(array $params): false|string
     {
-        $this->context->smarty->assign([
-            'pb_display_module' => Configuration::get(self::PROMO_BANNER_TITLE) !== null, // Display banner if Title not null
-            'pb_title' => Configuration::get(self::PROMO_BANNER_TITLE),
-            'pb_text'  => Configuration::get(self::PROMO_BANNER_TEXT),
-            'pb_img'   => Configuration::get(self::PROMO_BANNER_IMG)
-                ? $this->_path.'img/'.Configuration::get(self::PROMO_BANNER_IMG)
-                : '',
-        ]);
+        if (!$this->isShouldDisplayed()) {
+            return '';
+        }
+
+        $cacheId = 'promobanner|'.(int)$this->context->shop->id;
+
+        if (!$this->isCached('module:'.$this->name.'/views/templates/hook/banner.tpl', $cacheId)) {
+            $this->context->smarty->assign([
+                'pb_display_module' => Configuration::get(self::PROMO_BANNER_TITLE) !== null, // Display banner if Title not null
+                'pb_title' => Configuration::get(self::PROMO_BANNER_TITLE),
+                'pb_text'  => Configuration::get(self::PROMO_BANNER_TEXT),
+                'pb_img'   => Configuration::get(self::PROMO_BANNER_IMG)
+                    ? $this->_path.'img/'.Configuration::get(self::PROMO_BANNER_IMG)
+                    : '',
+            ]);
+        }
 
         // We make the template Smarty : /views/templates/hook/banner.tpl
-        return $this->display(__FILE__, 'views/templates/hook/banner.tpl');
+        return $this->fetch('module:'.$this->name.'/views/templates/hook/banner.tpl', $cacheId);
     }
 
     public function hookActionAdminControllerSetMedia(array $params): void
@@ -409,6 +480,42 @@ class Promotionalbanner extends Module
             }
         }
 
+    }
+
+    /**
+     * Determines whether the promotional banner should be displayed.
+     *
+     *  Conditions:
+     *   - The configured title must exist and be non-empty.
+     *   - If a start date is defined, the current time (server timezone) must be on or after it.
+     *   - If an end date is defined, the current time must be on or before it.
+     *
+     * @return bool
+     * @throws DateInvalidTimeZoneException
+     * @throws Exception
+     */
+    protected function isShouldDisplayed(): bool
+    {
+        // - Check Title -
+        if(Configuration::get(self::PROMO_BANNER_TITLE) === null || Configuration::get(self::PROMO_BANNER_TITLE) === ''){
+            return false;
+        }
+
+        // - Check the display period -
+        $now = new \DateTime('now', new \DateTimeZone(date_default_timezone_get()));
+        $startAt = Configuration::get(self::PROMO_BANNER_START_AT);
+        $endAt   = Configuration::get(self::PROMO_BANNER_END_AT);
+
+        $start = $startAt ? new \DateTime($startAt) : null;
+        $end = $endAt ? new \DateTime($endAt) : null;
+
+        if ($start && $now < $start) {
+            return false;
+        }
+        if ($end && $now > $end) {
+            return false;
+        }
+        return true;
     }
 
 }

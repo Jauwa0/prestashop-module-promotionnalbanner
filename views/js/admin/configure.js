@@ -15,7 +15,8 @@
      */
     document.addEventListener('click', function (e) {
         const btn = e.target.getAttribute('type') && e.target.getAttribute('type') === "button"
-            ?? e.target;
+            ? e.target
+            : null;
         if (!btn) return;
 
         const fileSelector = btn.getAttribute('data-file-input');
@@ -37,7 +38,8 @@
      */
     document.addEventListener('change', function (e) {
         const fileInput = e.target.getAttribute('type') && e.target.getAttribute('type') === "file"
-            ?? e.target;
+            ? e.target
+            : null;
         if (!fileInput) return;
 
         const target = fileInput.getAttribute('data-text-input');

@@ -1,5 +1,5 @@
 
-{if $pb_display_module}
+{if isset($pb_display_module) && $pb_display_module}
 
     <div class="card text-center p-3 my-4">
         {if $pb_img}

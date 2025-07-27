@@ -22,6 +22,7 @@
 
                         <div class="form-group">
                             <div class="col-lg-6">
+
                                 <input id="{$field.id}"
                                        type="file"
                                        name="{$field.name}"
@@ -41,6 +42,7 @@
                                         </button>
                                     </span>
                                 </div>
+
                             </div>
                         </div>
 
@@ -67,6 +69,7 @@
                         {if isset($field.required) && $field.required }<sup class="required">*</sup>{/if}
                     </label>
                     <div class="col-lg-9">
+
                         <input type="text" name="{$field.name}"
                                value="{$field.value|escape:'html':'UTF-8'}"
                                class="form-control"
@@ -92,11 +95,37 @@
                         {if isset($field.required) && $field.required }<sup class="required">*</sup>{/if}
                     </label>
                     <div class="col-lg-9">
+
                         <textarea name="{$field.name}"
                                   class="form-control"
                                   rows="4"
                                   {if isset($field.required) && $field.required } required="required" {/if}
                         >{$field.value|escape:'html':'UTF-8'}</textarea>
+
+                        {if $field.desc != ""}
+                            <p class="help-block">
+                                {$field.desc}
+                            </p>
+                        {/if}
+
+                    </div>
+                </div>
+
+            {elseif $field.type === 'date'}
+
+                {* DATE *}
+                <div class="form-group">
+                    <label for="{$field.name}" class="control-label col-lg-3">
+                        {$field.label}
+                        {if isset($field.required) && $field.required }<sup class="required">*</sup>{/if}
+                    </label>
+                    <div class="col-lg-9">
+
+                        <input type="date" name="{$field.name}"
+                               value="{$field.value|escape:'html':'UTF-8'}"
+                               class="form-control"
+                               {if isset($field.required) && $field.required } required="required" {/if}
+                        />
 
                         {if $field.desc != ""}
                             <p class="help-block">
